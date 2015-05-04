@@ -1,9 +1,8 @@
-from flask import Flask, request, redirect, jsonify, url_for
+from flask import Flask, request, redirect, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
 import os
 import random
 import time
-import requests
 import configparser
 
 
@@ -19,8 +18,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = connect_string
 db = SQLAlchemy(app)
 
 vote_table = db.Table("votes",
-                       db.Column("image_name", db.Text),
-                       db.Column("vote_count", db.Text))
+                      db.Column("image_name", db.Text),
+                      db.Column("vote_count", db.Text))
+
 
 @app.route("/")
 def index():
@@ -34,7 +34,7 @@ def random_spuds(samp_size):
                  if f.endswith("jpg")]
 
     samps = random.sample(file_list, samp_size)
-    return jsonify({"results":samps})
+    return jsonify({"results": samps})
 
 
 def __votes_on_pic(pic_name):
@@ -53,7 +53,7 @@ def __votes_on_pic(pic_name):
 @app.route("/votes/<pic_name>", methods=["GET"])
 def votes_on_pic(pic_name):
     vote_count = __votes_on_pic(pic_name)
-    return jsonify({"pic_id":pic_name, "votes":vote_count})
+    return jsonify({"pic_id": pic_name, "votes": vote_count})
 
 
 @app.route("/vote", methods=["POST"])
@@ -62,7 +62,7 @@ def do_vote():
     # Find out what the previous vote count was and add one
     pic_name = request.get_json().get("pic_name")
     votes = __votes_on_pic(pic_name)
-    votes = votes + 1
+    votes += 1
 
     # If the vote count is 1, this is a new record and should be put in as an insert.  Otherwise do an update query
     eng = db.get_engine(app)
@@ -75,7 +75,7 @@ def do_vote():
         query = vote_table.update().where(vote_table.c.image_name == pic_name).values(vote_count=votes)
 
     conn.execute(query)
-    return jsonify({"flask_message":"vote received for {}".format(pic_name)})
+    return jsonify({"flask_message": "vote received for {}".format(pic_name)})
 
 
 if __name__ == '__main__':
