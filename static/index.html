@@ -18,6 +18,13 @@
             <img class="img-responsive" ng-src="fixedpics/{{ pic2 }}" ng-click="choice_action(pic2)"/>
         </div>
     </div>
+    <div class="row">
+        <div class=""col-xs-12" align="center">
+            <ul class="pagination">
+                <li ng-repeat="x in visualize_toggle track by $index"><img src="counter_img.png" ng-show="x" /></li>
+            </ul>
+        </div>
+    </div>
 </div>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
@@ -28,6 +35,8 @@
 var app = angular.module("app", [])
 var ctr = function($scope, $http){
 
+    $scope.counter_spuds = 0
+
     function load_new_spuds(){
         $http.get("/randomspuds/2").success(function(response){
             $scope.pic1 = response["results"][0]
@@ -37,6 +46,13 @@ var ctr = function($scope, $http){
 
     function send_vote(choice){
         $http.post("/vote", {"pic_name":choice}).success(function(response){
+            $scope.counter_spuds += 1
+            $scope.visualize_toggle = [false, false, false, false, false, false, false, false, false, false]
+            var i = 0
+            while(i < $scope.counter_spuds){
+                $scope.visualize_toggle[i] = true
+                i += 1
+            }
         })
 
     }
