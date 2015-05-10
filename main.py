@@ -78,5 +78,12 @@ def do_vote():
     return jsonify({"flask_message": "vote received for {}".format(pic_name)})
 
 
+@app.route("/rankings", methods=["GET"])
+def rankings():
+    ranking_list = db.get_engine(app).connect().execute(db.select([vote_table])).fetchall()
+    reverse_rank_list = sorted(ranking_list, key=lambda tup: list(tup)[1], reverse=True)
+    reverse_rank_list = [{"pic":pic, "votes":votes} for pic, votes in reverse_rank_list]
+    return jsonify({"results":reverse_rank_list})
+
 if __name__ == '__main__':
     app.run(debug=True)
