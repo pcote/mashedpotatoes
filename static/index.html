@@ -44,14 +44,22 @@ var ctr = function($scope, $http){
         })
     }
 
+    function set_display_counter(){
+        $scope.counter_spuds += 1
+        $scope.visualize_toggle = [false, false, false, false, false, false, false, false, false, false]
+        var i = 0
+        while(i < $scope.counter_spuds){
+            $scope.visualize_toggle[i] = true
+            i += 1
+        }
+    }
+
     function send_vote(choice){
         $http.post("/vote", {"pic_name":choice}).success(function(response){
-            $scope.counter_spuds += 1
-            $scope.visualize_toggle = [false, false, false, false, false, false, false, false, false, false]
-            var i = 0
-            while(i < $scope.counter_spuds){
-                $scope.visualize_toggle[i] = true
-                i += 1
+            set_display_counter()
+
+            if($scope.counter_spuds >= 10){
+                window.location = "rankings.html"
             }
         })
 
