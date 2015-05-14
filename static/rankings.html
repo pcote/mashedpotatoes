@@ -16,11 +16,13 @@
         <div class="col-xs-12">
             <ul>
                 <li ng-repeat="entry in top10">
-                    <img ng-src="fixedpics/{{entry.pic}}" /> - {{entry.votes}} votes
+                    <img ng-src="fixedpics/{{entry.pic}}" /> - <font style="font-size:20px;">{{entry.votes}} votes</font>
                 </li>
             </ul>
         </div>
     </div>
+    <br />
+    <h2 align="center"><a href="/"><b>Play Again!</b></a></h3>
 </div>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
