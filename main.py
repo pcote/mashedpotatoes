@@ -8,7 +8,9 @@ import configparser
 
 app = Flask(__name__)
 
-
+##################################
+# Setup of database configuration#
+##################################
 confparser = configparser.ConfigParser()
 confparser.read("creds.ini")
 section = confparser["creds"]
@@ -24,11 +26,20 @@ vote_table = db.Table("votes",
 
 @app.route("/")
 def index():
+    """
+    Sends the user to the main page to start picking favorite spuds
+    :return: a redirect to the spud picking page.
+    """
     return redirect("static/index.html")
 
 
 @app.route("/randomspuds/<int:samp_size>")
 def random_spuds(samp_size):
+    """
+    Choose some random spud pictures from out of the fixedpics directory.
+    :param samp_size: How many pictures you want to randomly choose.
+    :return: The names of the sample pictures
+    """
     random.seed(time.time())
     file_list = [f for f in os.listdir("static/fixedpics")
                  if f.endswith("jpg")]
@@ -52,12 +63,22 @@ def __votes_on_pic(pic_name):
 
 @app.route("/votes/<pic_name>", methods=["GET"])
 def votes_on_pic(pic_name):
+    """
+    Find out how many votes a given picture has gotten
+    :param pic_name: The name of the picture to inquire about
+    :return: info on the name of the pic and the number of votes it got.
+    """
     vote_count = __votes_on_pic(pic_name)
     return jsonify({"pic_id": pic_name, "votes": vote_count})
 
 
 @app.route("/vote", methods=["POST"])
 def do_vote():
+    """
+    Handle casting of a vote for a spud picture
+    Expects a 'pic_name' to be passed in by json format.
+    :return: A message confirming receipt of the vote.
+    """
 
     # Find out what the previous vote count was and add one
     pic_name = request.get_json().get("pic_name")
@@ -80,10 +101,15 @@ def do_vote():
 
 @app.route("/rankings", methods=["GET"])
 def rankings():
+    """
+    Get a ranking list of the spud pictures and how many votes they each received.
+    :return: Ranking list or pics with respective votes listed from most popular to least.
+    """
+
     ranking_list = db.get_engine(app).connect().execute(db.select([vote_table])).fetchall()
     reverse_rank_list = sorted(ranking_list, key=lambda tup: list(tup)[1], reverse=True)
-    reverse_rank_list = [{"pic":pic, "votes":votes} for pic, votes in reverse_rank_list]
-    return jsonify({"results":reverse_rank_list})
+    reverse_rank_list = [{"pic": pic, "votes": votes} for pic, votes in reverse_rank_list]
+    return jsonify({"results": reverse_rank_list})
 
 if __name__ == '__main__':
     app.run(debug=True)
